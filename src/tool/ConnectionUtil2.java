@@ -2,17 +2,17 @@ package tool;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
-public class ConnectionUtil {
+public class ConnectionUtil2 {
 	public static Connection getConnection() {
 		Properties prop = new Properties();// 文件转为流
 
@@ -46,8 +46,9 @@ public class ConnectionUtil {
 		return connection;
 	}
 
-	public static void doSql(String sql, Object... objects) throws SQLException {
+	public static Map<String,Object> doSql(String sql, Object... objects) throws SQLException {
 		// prepare to connect
+		Map<String,Object> map = new HashMap<>();
 		Connection conn = ConnectionUtil.getConnection();
 		PreparedStatement ps = conn.prepareStatement(sql);
 		String upperSql = sql.toUpperCase();
@@ -64,7 +65,8 @@ public class ConnectionUtil {
 			int num = metaData.getColumnCount();
 			while (rs.next()) {
 				for (int i = 1; i < num; i++) {
-					System.out.print(colName[i-1]+":"+rs.getObject(i)+" ");
+					//System.out.print(colName[i-1]+":"+rs.getObject(i)+" ");
+					map.put(metaData.getColumnName(i), rs.getObject(i));
 				}
 				System.out.println("\n");
 			}
@@ -74,5 +76,6 @@ public class ConnectionUtil {
 		}
 		ps.close();
 		conn.close();
+		return map;
 	}
 }
